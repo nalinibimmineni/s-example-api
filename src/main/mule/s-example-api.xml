@@ -9,7 +9,6 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
   <db:config name="Database_Config" doc:name="Database Config" doc:id="8a5bf256-b0d2-4aed-96d5-f28a82cf55e4" >
 		<db:my-sql-connection host="localhost" port="3306" user="root" password="root@123" database="mule_db"  />
 	</db:config>
-	<api-gateway:autodiscovery apiId="15529911" doc:name="API Autodiscovery" doc:id="e90ead4a-3b58-4981-beb1-e47826200155" flowRef="example-main" />
 	<flow name="post:\test:example-config">
         <logger level="INFO" doc:name="Logger" doc:id="54015579-0a2a-4a13-803e-a5415018cccf" message="#['started']"/>
 		<ee:transform doc:name="Transform Message" doc:id="a3119951-346e-4966-94cc-dee4b7bd4146" >
@@ -42,6 +41,27 @@ output application/json
             </ee:message>
         </ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="4ceef23c-cdd7-40cd-833b-1d5a3bba64d4" message="#['completed']"/>
+    
+</flow>
+ <flow name="get:\test:example-config">
+        <logger level="INFO" doc:name="Logger" doc:id="3eed3083-9f7f-4476-93cd-297e34620e64" message="#['Started Get']"/>
+		<db:select doc:name="Select" doc:id="f03f359e-de55-4dba-8c34-ccedeb8eed78" config-ref="Database_Config">
+			<db:sql >select * from t_test;</db:sql>
+		</db:select>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="35a9be0d-a065-4190-ac7a-f773872289fd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+payload map {
+  
+  id:$.id,
+  name:$.name
+  
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="ec864343-efec-4ac5-a8be-0fc00b6f980d" message="#['completed']"/>
     
 </flow>
     </mule>

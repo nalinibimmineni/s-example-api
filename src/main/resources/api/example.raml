@@ -21,14 +21,25 @@ protocols: [HTTPS , HTTP]
                "name":"string"
              }
       responses: 
-        200:
+        201:
           body: 
             application/json:
                example:
                   {
                     "message": "sucessfully inserted test data"
                   }
-            
+    get:
+      responses: 
+         200:
+          body: 
+             application/json:
+                example:
+                    {
+                      "message":"Retreived data"
+                    }
+           
+        
+              
           
                
           
