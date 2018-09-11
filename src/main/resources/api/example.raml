@@ -1,0 +1,34 @@
+#%RAML 1.0
+title: s-example API
+version: V1
+baseUri: http://localhost:8081/api/example/V1
+
+documentation: 
+  - title: API
+    content: API to perform CRUD operations on the s-example API
+
+mediaType: application/json
+protocols: [HTTPS , HTTP]
+
+  
+/test: 
+    post:
+      body: 
+        application/json:
+          example: 
+             {
+               "id":"integer",
+               "name":"string"
+             }
+      responses: 
+        200:
+          body: 
+            application/json:
+               example:
+                  {
+                    "message": "sucessfully inserted test data"
+                  }
+            
+          
+               
+          

@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+  
+  
+  <db:config name="Database_Config" doc:name="Database Config" doc:id="8a5bf256-b0d2-4aed-96d5-f28a82cf55e4" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root@123" database="mule_db"  />
+	</db:config>
+	<api-gateway:autodiscovery apiId="15529911" doc:name="API Autodiscovery" doc:id="e90ead4a-3b58-4981-beb1-e47826200155" flowRef="example-main" />
+	<flow name="post:\test:example-config">
+        <logger level="INFO" doc:name="Logger" doc:id="54015579-0a2a-4a13-803e-a5415018cccf" message="#['started']"/>
+		<ee:transform doc:name="Transform Message" doc:id="a3119951-346e-4966-94cc-dee4b7bd4146" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"id": payload.id,
+	"name":payload.name
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:insert doc:name="Insert" doc:id="52d0aae8-ad56-4483-b3bc-4b8e88027f77" config-ref="Database_Config">
+			<db:sql >insert into t_test (id,name) values(:id, :name);</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+"id": payload.id,
+"name":payload.name
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="39477a59-01a7-4286-b9e3-352b35edcef6">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: ("sucessfully inserted test data" default ""), 
+	affectedRows: (payload.affectedRows as String default ""),
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4ceef23c-cdd7-40cd-833b-1d5a3bba64d4" message="#['completed']"/>
+    
+</flow>
+    </mule>
